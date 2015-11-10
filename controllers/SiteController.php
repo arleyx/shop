@@ -96,8 +96,14 @@ class SiteController extends Controller
     public function actionRegister()
     {
         $m_registerForm = new RegisterForm;
-        if ($m_registerForm->load(Yii::$app->request->post()) && $m_registerForm->validate() && $m_registerForm->save()) {
-            Yii::$app->session->setFlash('success','Datos enviados correctamente.');
+
+        if ($m_registerForm->load(Yii::$app->request->post()) && $m_registerForm->validate()) {
+            $m_registerForm->use_auth = Yii::$app->request->post()['RegisterForm']['use_login'].'_auth';
+            $m_registerForm->use_access = Yii::$app->request->post()['RegisterForm']['use_login'].'_access';
+
+            if ($m_registerForm->save()) {
+                Yii::$app->session->setFlash('success','Datos enviados correctamente.');
+            }
         }
         return $this->render('register', ['m_registerForm' => $m_registerForm]);
     }

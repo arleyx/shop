@@ -3,6 +3,7 @@
 namespace app\models;
 
 #use yii\base\Object;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -14,7 +15,10 @@ class User extends ActiveRecord implements IdentityInterface
     public $authKey;
     public $accessToken;
 
-    private static $users = [
+    const ROLE_ADMIN = 1;
+    const ROLE_USER = 2;
+
+    /*private static $users = [
         '100' => [
             'id' => '100',
             'username' => 'admin',
@@ -29,7 +33,7 @@ class User extends ActiveRecord implements IdentityInterface
             'authKey' => 'test101key',
             'accessToken' => '101-token',
         ],
-    ];
+    ];*/
 
     public static function tableName ()
     {
@@ -41,7 +45,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        /*return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;*/
+        return User::find()->where(['use_id' => $id])->one() != null ? new static(User::find()->where(['use_id' => $id])->one()) : null;
     }
 
     /**
@@ -49,13 +54,22 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
+        /*foreach (self::$users as $user) {
             if ($user['accessToken'] === $token) {
                 return new static($user);
             }
+        }*/
+
+        if (User::find()->where(['use_access' => $token])->one() != null) {
+            return new static(User::find()->where(['use_access' => $token])->one());
         }
 
         return null;
+    }
+
+    public static function isRole($use_role)
+    {
+        return Yii::$app->user->isGuest ? false : Yii::$app->user->identity->use_role == $use_role;
     }
 
     /**
@@ -66,10 +80,14 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
+        /*foreach (self::$users as $user) {
             if (strcasecmp($user['username'], $username) === 0) {
                 return new static($user);
             }
+        }*/
+
+        if (User::find()->where(['use_login' => $username])->one() != null) {
+            return new static(User::find()->where(['use_login' => $username])->one());
         }
 
         return null;
@@ -80,7 +98,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getId()
     {
-        return $this->id;
+        return $this['use_id'];
+        //return $this->id;
     }
 
     /**
@@ -88,7 +107,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        /*return $this->authKey;*/
+        return $this['use_auth'];
     }
 
     /**
@@ -96,7 +116,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        /*return $this->authKey === $authKey;*/
+        return $this['use_auth'] === $authKey;
     }
 
     /**
@@ -107,6 +128,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        //return $this->password === $password;
+        return $this['use_password'] === $password;
     }
 }

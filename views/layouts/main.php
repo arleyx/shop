@@ -8,6 +8,7 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
+use app\models\User;
 
 AppAsset::register($this);
 ?>
@@ -33,6 +34,7 @@ AppAsset::register($this);
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
+
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
@@ -40,16 +42,27 @@ AppAsset::register($this);
             Yii::$app->user->isGuest ?
                 ['label' => 'Ingresar', 'url' => ['/site/login']] :
                 [
-                    'label' => 'Salir (' . Yii::$app->user->identity->username . ')',
+                    //'label' => 'Salir (' . Yii::$app->user->identity->username . ')',
+                    'label' => 'Salir (' . Yii::$app->user->identity->use_name . ')',
                     'url' => ['/site/logout'],
                     'linkOptions' => ['data-method' => 'post']
                 ],
+
+            ['label' => 'Productos', 'url' => ['/product']],
             ['label' => 'Registrese', 'url' => ['/site/register']],
             ['label' => 'Contacto', 'url' => ['/site/contact']]
         ],
     ]);
     NavBar::end();
     ?>
+<a href="#">asdasdas</a>
+<?php
+/*
+isset(Yii::$app->user->identity->use_id) && User::isRole(User::ROLE_ADMIN) ?
+    '<a href="/user">Usuarios</a>' :
+    '<a href="/user/view">Mi perfil</a>'
+*/
+?>
 
     <div class="container">
         <?= Breadcrumbs::widget([
